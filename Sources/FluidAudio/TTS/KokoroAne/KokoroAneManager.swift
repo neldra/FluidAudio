@@ -208,6 +208,15 @@ public actor KokoroAneManager {
         )
     }
 
+    /// Public single-word G2P entry. Exposed so callers can mix their own
+    /// lexicon-based G2P with FluidAudio's BART model for OOV words.
+    /// Returns `nil` if the model has no output (rare; usually punctuation-only input).
+    public func phonemizeWord(_ word: String) async throws -> String? {
+        let cleaned = word.trimmingCharacters(in: .punctuationCharacters).lowercased()
+        guard !cleaned.isEmpty else { return nil }
+        return try await G2PModel.shared.phonemize(word: cleaned)?.joined()
+    }
+
     /// Whitespace-split, per-word G2P, joined with " ". Punctuation is
     /// stripped because the laishere vocab is IPA-only — punctuation chars
     /// would just be dropped at `KokoroAneVocab.encode` anyway.
