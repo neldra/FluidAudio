@@ -45,7 +45,7 @@ public actor Supertonic3Manager {
 
     public init(
         directory: URL? = nil,
-        computeUnits: MLComputeUnits = .cpuAndNeuralEngine
+        computeUnits: MLComputeUnits = .all
     ) {
         self.directory = directory
         self.computeUnits = computeUnits
@@ -56,7 +56,7 @@ public actor Supertonic3Manager {
     /// Convenience factory: download assets and return a ready-to-use manager.
     public static func downloadAndCreate(
         cacheDirectory: URL? = nil,
-        computeUnits: MLComputeUnits = .cpuAndNeuralEngine
+        computeUnits: MLComputeUnits = .all
     ) async throws -> Supertonic3Manager {
         let manager = Supertonic3Manager(
             directory: cacheDirectory,

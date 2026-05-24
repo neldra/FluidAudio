@@ -16,12 +16,12 @@ public struct KokoroAneComputeUnits: Sendable, Equatable {
     public var tail: MLComputeUnits
 
     public init(
-        albert: MLComputeUnits = .cpuAndNeuralEngine,
-        postAlbert: MLComputeUnits = .cpuAndNeuralEngine,
-        alignment: MLComputeUnits = .cpuAndNeuralEngine,
+        albert: MLComputeUnits = .aneOrAll,
+        postAlbert: MLComputeUnits = .aneOrAll,
+        alignment: MLComputeUnits = .aneOrAll,
         prosody: MLComputeUnits = .all,
         noise: MLComputeUnits = .all,
-        vocoder: MLComputeUnits = .cpuAndNeuralEngine,
+        vocoder: MLComputeUnits = .aneOrAll,
         tail: MLComputeUnits = .all
     ) {
         self.albert = albert
@@ -42,14 +42,14 @@ public struct KokoroAneComputeUnits: Sendable, Equatable {
         prosody: .cpuAndGPU, noise: .cpuAndGPU, vocoder: .cpuAndGPU, tail: .cpuAndGPU
     )
 
-    /// Force every stage onto `.cpuAndNeuralEngine`. Stages that hit
+    /// Force every stage onto `.aneOrAll`. Stages that hit
     /// ANE-incompatible ops will fall back to CPU silently — included
     /// for the benchmark sweep (efficiency vs. latency comparison).
     public static let allAne = KokoroAneComputeUnits(
-        albert: .cpuAndNeuralEngine, postAlbert: .cpuAndNeuralEngine,
-        alignment: .cpuAndNeuralEngine, prosody: .cpuAndNeuralEngine,
-        noise: .cpuAndNeuralEngine, vocoder: .cpuAndNeuralEngine,
-        tail: .cpuAndNeuralEngine
+        albert: .aneOrAll, postAlbert: .aneOrAll,
+        alignment: .aneOrAll, prosody: .aneOrAll,
+        noise: .aneOrAll, vocoder: .aneOrAll,
+        tail: .aneOrAll
     )
 
     /// CPU-only (no ANE, no GPU). Slowest but most predictable; useful
@@ -279,7 +279,7 @@ public actor KokoroAneModelStore {
             let tokenizer = try MandarinBertTokenizer.load(vocabURL: vocabURL)
             let catalog = try MandarinPolyphoneCatalog.load(fileURL: polyURL)
             let config = MLModelConfiguration()
-            config.computeUnits = .cpuAndNeuralEngine
+            config.computeUnits = .aneOrAll
             let model = try MLModel(contentsOf: modelURL, configuration: config)
             return MandarinG2pwModel(
                 model: model, tokenizer: tokenizer, catalog: catalog)

@@ -19,7 +19,7 @@ public enum TtsComputeUnitPreset: String, Sendable, CaseIterable {
     /// ANE-friendly and CPU+GPU stages chosen by the conversion author.
     case `default`
 
-    /// Force every stage to `.cpuAndNeuralEngine`. Worst case for stages
+    /// Force every stage to `.aneOrAll`. Worst case for stages
     /// that fall back to CPU on ANE-incompatible ops, but the most
     /// energy-efficient when ops are ANE-clean.
     case allAne
@@ -39,7 +39,7 @@ public enum TtsComputeUnitPreset: String, Sendable, CaseIterable {
     public var uniformUnits: MLComputeUnits? {
         switch self {
         case .default: return nil
-        case .allAne: return .cpuAndNeuralEngine
+        case .allAne: return .aneOrAll
         case .cpuAndGpu: return .cpuAndGPU
         case .cpuOnly: return .cpuOnly
         }

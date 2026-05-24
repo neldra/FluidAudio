@@ -492,86 +492,6 @@ public enum ModelNames {
         ]
     }
 
-    /// Sortformer streaming diarization model names
-    public enum Sortformer {
-        public enum Variant: CaseIterable, Sendable {
-            case fastV2
-            case fastV2_1
-            case balancedV2
-            case balancedV2_1
-            case highContextV2
-            case highContextV2_1
-
-            public var name: String {
-                switch self {
-                case .fastV2:
-                    return "Sortformer_v2"
-                case .fastV2_1:
-                    return "Sortformer_v2.1"
-                case .balancedV2:
-                    return "SortformerNvidiaLow_v2"
-                case .balancedV2_1:
-                    return "SortformerNvidiaLow_v2.1"
-                case .highContextV2:
-                    return "SortformerNvidiaHigh_v2"
-                case .highContextV2_1:
-                    return "SortformerNvidiaHigh_v2.1"
-                }
-            }
-
-            public var defaultConfiguration: SortformerConfig {
-                switch self {
-                case .fastV2:
-                    return .fastV2
-                case .fastV2_1:
-                    return .fastV2_1
-                case .balancedV2:
-                    return .balancedV2
-                case .balancedV2_1:
-                    return .balancedV2_1
-                case .highContextV2:
-                    return .highContextV2
-                case .highContextV2_1:
-                    return .highContextV2_1
-                }
-            }
-
-            public var fileName: String {
-                return "\(name).mlmodelc"
-            }
-
-            public func isCompatible(with config: SortformerConfig) -> Bool {
-                defaultConfiguration.isCompatible(with: config)
-            }
-        }
-
-        /// Lowest latency for streaming
-        public static let defaultVariant: Variant = .fastV2_1
-
-        /// Bundle name for a specific variant
-        public static func bundle(for variant: Variant) -> String {
-            return variant.fileName
-        }
-
-        /// Bundle name for a given configuration
-        public static func bundle(for config: SortformerConfig) -> String? {
-            guard let variant = config.modelVariant else {
-                return nil
-            }
-            assert(variant.isCompatible(with: config), "ERROR: Model variant and configuration are not compatible.")
-            return variant.fileName
-        }
-
-        /// Default bundle name
-        public static var defaultBundle: String {
-            return defaultVariant.fileName
-        }
-
-        /// All Sortformer bundle models required by the downloader
-        public static var requiredModels: Set<String> {
-            Set(Variant.allCases.map(\.fileName))
-        }
-    }
 
     /// LS-EEND streaming diarization model names
     public enum LSEEND {
@@ -702,28 +622,6 @@ public enum ModelNames {
         /// Directory containing binary constants, tokenizer, and voice data.
         public static let constantsBinDir = "constants_bin"
 
-        /// FlowLM filename for a given precision. Both variants ship in the
-        /// same `v2/<lang>/` directory upstream; only the FlowLM transformer
-        /// has an int8 variant — `cond_step`, `flow_decoder`, and
-        /// `mimi_decoder` always load the default file.
-        public static func flowlmStepFile(precision: PocketTtsPrecision) -> String {
-            switch precision {
-            case .fp16: return flowlmStepFile
-            case .int8: return flowlmStepV2File
-            }
-        }
-
-        /// Required files inside any language's `v2/<lang>/` pack for the
-        /// given precision. The set differs only in the FlowLM filename.
-        public static func requiredModels(precision: PocketTtsPrecision) -> Set<String> {
-            [
-                condStepFile,
-                flowlmStepFile(precision: precision),
-                flowDecoderFile,
-                mimiDecoderFile,
-                constantsBinDir,
-            ]
-        }
 
         /// Required files for the default precision. Kept for callers that
         /// haven't been updated to pass a precision argument.
@@ -1051,10 +949,8 @@ public enum ModelNames {
         case .kokoroAneZh:
             return ModelNames.KokoroAne.requiredModelsZh
         case .sortformer:
-            if let variant = variant {
-                return [variant]
-            }
-            return ModelNames.Sortformer.requiredModels
+            // Sortformer diarization removed in the Aidoku Kokoro-only fork.
+            return variant.map { [$0] } ?? []
         case .lseendAmi, .lseendCallHome, .lseendDihard2, .lseendDihard3:
             if let variant = variant {
                 return [variant + ".mlmodelc"]

@@ -31,7 +31,7 @@ public actor Supertonic3ModelStore {
 
     public init(
         directory: URL? = nil,
-        computeUnits: MLComputeUnits = .cpuAndNeuralEngine
+        computeUnits: MLComputeUnits = .all
     ) {
         self.directory = directory
         self.computeUnits = computeUnits

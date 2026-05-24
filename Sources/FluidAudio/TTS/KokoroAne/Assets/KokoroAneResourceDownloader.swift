@@ -325,6 +325,43 @@ public enum KokoroAneResourceDownloader {
         return localURL
     }
 
+    // MARK: - Disk-presence check
+
+    /// Whether the Kokoro model chain for `variant` is already present on disk.
+    /// Performs no network access — mirrors the cache-hit check in `ensureModels`.
+    ///
+    /// For the `.english` variant, also verifies the shared G2P assets (encoder,
+    /// decoder, vocab) that `ensureG2PAssets` places under
+    /// `<modelsDirectory>/kokoro/`. A partial install (models present but G2P
+    /// purged from the caches directory) previously reported `.ready` and then
+    /// failed every paragraph silently.
+    public static func modelsArePresent(variant: KokoroAneVariant = .english) -> Bool {
+        guard let modelsDirectory = try? defaultModelsDirectory() else { return false }
+        let repoDir = modelsDirectory.appendingPathComponent(variant.repo.folderName)
+        let required: Set<String>
+        switch variant {
+        case .english: required = ModelNames.KokoroAne.requiredModels
+        case .mandarin: required = ModelNames.KokoroAne.requiredModelsZh
+        }
+        let modelChainPresent = required.allSatisfy { name in
+            FileManager.default.fileExists(atPath: repoDir.appendingPathComponent(name).path)
+        }
+        guard modelChainPresent else { return false }
+
+        // For English, also verify the shared G2P CoreML assets that
+        // `ensureG2PAssets` fetches into `<modelsDirectory>/kokoro/`.
+        // Mirrors the `allPresent` check in `ensureG2PAssets` exactly.
+        if case .english = variant {
+            let kokoroDir = modelsDirectory.appendingPathComponent(Repo.kokoro.folderName)
+            let g2pPresent = ModelNames.G2P.requiredModels.allSatisfy { name in
+                FileManager.default.fileExists(atPath: kokoroDir.appendingPathComponent(name).path)
+            }
+            guard g2pPresent else { return false }
+        }
+
+        return true
+    }
+
     // MARK: - Private
 
     private static func defaultModelsDirectory() throws -> URL {

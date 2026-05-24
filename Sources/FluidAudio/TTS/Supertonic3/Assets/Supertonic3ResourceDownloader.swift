@@ -40,6 +40,19 @@ public enum Supertonic3ResourceDownloader {
         return repoDir
     }
 
+    /// Synchronous disk-presence check used by clients (e.g., Aidoku) that
+    /// must resolve TTS availability at launch before any async download
+    /// flow can run. Mirrors `KokoroAneResourceDownloader.modelsArePresent`.
+    public static func modelsArePresent(directory: URL? = nil) -> Bool {
+        guard let modelsRoot = try? (directory ?? defaultCacheRoot()) else {
+            return false
+        }
+        let repoDir = modelsRoot.appendingPathComponent(Repo.supertonic3.folderName)
+        return ModelNames.Supertonic3.requiredFiles.allSatisfy { file in
+            FileManager.default.fileExists(atPath: repoDir.appendingPathComponent(file).path)
+        }
+    }
+
     private static func defaultCacheRoot() throws -> URL {
         let base: URL
         #if os(macOS)

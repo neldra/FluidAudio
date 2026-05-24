@@ -1,20 +1,19 @@
 // swift-tools-version: 6.0
 import PackageDescription
 
+// Aidoku iOS-15 fork: floor lowered .iOS(.v17) -> .iOS(.v15) so the iOS-15
+// Aidoku app target can link it; the CLI executable and test target are
+// dropped since Aidoku consumes only the FluidAudio library.
 let package = Package(
     name: "FluidAudio",
     platforms: [
         .macOS(.v14),
-        .iOS(.v17),
+        .iOS(.v15),
     ],
     products: [
         .library(
             name: "FluidAudio",
             targets: ["FluidAudio"]
-        ),
-        .executable(
-            name: "fluidaudiocli",
-            targets: ["FluidAudioCLI"]
         ),
     ],
     dependencies: [],
@@ -39,24 +38,6 @@ let package = Package(
             name: "MachTaskSelfWrapper",
             path: "Sources/MachTaskSelfWrapper",
             publicHeadersPath: "include"
-        ),
-        .executableTarget(
-            name: "FluidAudioCLI",
-            dependencies: [
-                "FluidAudio",
-            ],
-            path: "Sources/FluidAudioCLI",
-            exclude: ["README.md"],
-            resources: [
-                .process("Utils/english.json")
-            ]
-        ),
-        .testTarget(
-            name: "FluidAudioTests",
-            dependencies: [
-                "FluidAudio",
-                "FluidAudioCLI",
-            ]
         ),
     ],
     cxxLanguageStandard: .cxx17

@@ -116,7 +116,7 @@ public class DownloadUtils {
         _ repo: Repo,
         modelNames: [String],
         directory: URL,
-        computeUnits: MLComputeUnits = .cpuAndNeuralEngine,
+        computeUnits: MLComputeUnits = .aneOrAll,
         variant: String? = nil,
         progressHandler: ProgressHandler? = nil
     ) async throws -> [String: MLModel] {
@@ -192,7 +192,7 @@ public class DownloadUtils {
         _ repo: Repo,
         modelNames: [String],
         directory: URL,
-        computeUnits: MLComputeUnits = .cpuAndNeuralEngine,
+        computeUnits: MLComputeUnits = .aneOrAll,
         variant: String? = nil,
         progressHandler: ProgressHandler? = nil
     ) async throws -> [String: MLModel] {

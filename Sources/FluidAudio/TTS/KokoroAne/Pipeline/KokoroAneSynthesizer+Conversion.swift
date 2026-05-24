@@ -50,7 +50,7 @@ enum KokoroAneArrays {
             source.count == total,
             "float16Array: shape \(shape) (\(total)) ≠ source.count \(source.count)")
         let nsShape = shape.map { NSNumber(value: $0) }
-        let arr = try MLMultiArray(shape: nsShape, dataType: .float16)
+        let arr = try MLMultiArray(shape: nsShape, dataType: .float16OrFloat32)
         let dst = arr.dataPointer.bindMemory(to: UInt16.self, capacity: total)
         source.withUnsafeBufferPointer { srcBuf in
             convertF32toF16(src: srcBuf.baseAddress!, dst: dst, count: total)
@@ -63,11 +63,11 @@ enum KokoroAneArrays {
         // Same shape + same dtype → just copy bytes.
         let total = shape.reduce(1, *)
         let nsShape = shape.map { NSNumber(value: $0) }
-        let dst = try MLMultiArray(shape: nsShape, dataType: .float16)
+        let dst = try MLMultiArray(shape: nsShape, dataType: .float16OrFloat32)
         precondition(
             source.count == total,
             "float16Array(from MLMultiArray): source has \(source.count) elements, shape implies \(total)")
-        if source.dataType == .float16 {
+        if source.dataType == .float16OrFloat32 {
             memcpy(dst.dataPointer, source.dataPointer, total * MemoryLayout<UInt16>.size)
             return dst
         }
@@ -109,7 +109,7 @@ enum KokoroAneArrays {
             memcpy(dst.dataPointer, source.dataPointer, total * MemoryLayout<Float>.size)
             return dst
         }
-        if source.dataType == .float16 {
+        if source.dataType == .float16OrFloat32 {
             let srcU16 = source.dataPointer.bindMemory(to: UInt16.self, capacity: total)
             let dstF = dst.dataPointer.bindMemory(to: Float.self, capacity: total)
             convertF16toF32(src: srcU16, dst: dstF, count: total)
@@ -149,7 +149,7 @@ enum KokoroAneArrays {
             let p = arr.dataPointer.bindMemory(to: Float.self, capacity: count)
             return Array(UnsafeBufferPointer(start: p, count: count))
         }
-        if arr.dataType == .float16 {
+        if arr.dataType == .float16OrFloat32 {
             let p = arr.dataPointer.bindMemory(to: UInt16.self, capacity: count)
             var out = [Float](repeating: 0, count: count)
             out.withUnsafeMutableBufferPointer { outBuf in
