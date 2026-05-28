@@ -86,6 +86,13 @@ public actor KokoroAneManager {
         await store.isLoaded
     }
 
+    /// Resolve and cache `voice`'s pack — downloading it if missing —
+    /// without running the synthesis pipeline. Useful for UI flows that
+    /// want to overlap voice download with the user's next action.
+    public func prefetchVoice(_ voice: String) async throws {
+        _ = try await store.voicePack(voice)
+    }
+
     /// Override the voice used by default.
     public func setDefaultVoice(_ voice: String) {
         self.defaultVoice = voice
